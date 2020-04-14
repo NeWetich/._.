@@ -3,31 +3,64 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SnakeGame
+namespace Змейка
 {
     class Game
     {
-        static readonly int x = 80;
-        static readonly int y = 26;
+
 
         static Walls walls;
         static Snake snake;
-        static FoodFactory foodFactory;
+        static Food food;
         static Timer time;
 
         static void Main()
         {
+            Console.CursorVisible = false; //скрывает курсор в консоли
+            int x = 0, y = 0; //границы массива
+            int snake_speed = 0; //скорость змейки
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("                    Сhoose your destiny:");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("                           Легкий");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("                           Средний");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("                           Сложный");//выбор уровня сложности
+            Console.ForegroundColor = ConsoleColor.White;
+
+            int Level = Convert.ToInt32(Console.ReadLine());
+            Console.Clear();
+
+            switch (Level)//сложность уровня
+            {
+                case 1:
+                    x = 12;
+                    y = 12;
+                    snake_speed = 400;
+                    break;
+                case 2:
+                    x = 15;
+                    y = 15;
+                    snake_speed = 200;
+                    break;
+                case 3:
+                    x = 20;
+                    y = 20;
+                    snake_speed = 100;
+                    break;
+
+            }
             Console.SetWindowSize(x + 1, y + 1);
             Console.SetBufferSize(x + 1, y + 1);
-            Console.CursorVisible = false;
 
-            walls = new Walls(x, y, '#');
-            snake = new Snake(x / 2, y / 2, 3);
+            walls = new Walls(x, y, '†');//стена
+            snake = new Snake(x / 2, y / 2, 3);//змейка
 
-            foodFactory = new FoodFactory(x, y, '@');
-            foodFactory.CreateFood();
+            food = new Food(x, y, '¤');//еда
+            food.CreateFood();
 
-            time = new Timer(Loop, null, 0, 200);
+            time = new Timer(Loop, null, 0, snake_speed);//скорость змейки в зависимости от уровня
 
             while (true)
             {
@@ -37,7 +70,7 @@ namespace SnakeGame
                     snake.Rotation(key.Key);
                 }
             }
-        }// Main()
+        }
 
         static void Loop(object obj)
         {
@@ -45,16 +78,16 @@ namespace SnakeGame
             {
                 time.Change(0, Timeout.Infinite);
             }
-            else if (snake.Eat(foodFactory.food))
+            else if (snake.Eat(food.food))
             {
-                foodFactory.CreateFood();
+                food.CreateFood();
             }
             else
             {
                 snake.Move();
             }
-        }// Loop()
-    }// class Game
+        }
+    }
 
     struct Point
     {
@@ -65,8 +98,17 @@ namespace SnakeGame
         public static implicit operator Point((int, int, char) value) =>
               new Point { x = value.Item1, y = value.Item2, ch = value.Item3 };
 
-        public static bool operator ==(Point a, Point b) =>
-                (a.x == b.x && a.y == b.y) ? true : false;
+        public static bool operator ==(Point a, Point b)
+        {
+            if (a.x == b.x && a.y == b.y)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public static bool operator !=(Point a, Point b) =>
                 (a.x != b.x || a.y != b.y) ? true : false;
 
@@ -121,7 +163,7 @@ namespace SnakeGame
             }
         }
 
-        public bool IsHit(Point p)
+        public bool IsHit(Point p)//условие если голова змейки врежется в стенку
         {
             foreach (var w in wall)
             {
@@ -129,10 +171,11 @@ namespace SnakeGame
                 {
                     return true;
                 }
+
             }
             return false;
         }
-    }// class Walls
+    }
 
     enum Direction
     {
@@ -160,13 +203,12 @@ namespace SnakeGame
             snake = new List<Point>();
             for (int i = x - length; i < x; i++)
             {
-                Point p = (i, y, '*');
+                Point p = (i, y, 'ø');
                 snake.Add(p);
 
                 p.Draw();
             }
         }
-
         public Point GetHead() => snake.Last();
 
         public void Move()
@@ -182,7 +224,6 @@ namespace SnakeGame
 
             rotate = true;
         }
-
         public bool Eat(Point p)
         {
             head = GetNextPoint();
@@ -194,7 +235,6 @@ namespace SnakeGame
             }
             return false;
         }
-
         public Point GetNextPoint()
         {
             Point p = GetHead();
@@ -216,7 +256,6 @@ namespace SnakeGame
             }
             return p;
         }
-
         public void Rotation(ConsoleKey key)
         {
             if (rotate)
@@ -242,8 +281,7 @@ namespace SnakeGame
             }
 
         }
-
-        public bool IsHit(Point p)
+        public bool IsHit(Point p)//условие, когда голова змейки врежется в себя
         {
             for (int i = snake.Count - 2; i > 0; i--)
             {
@@ -254,9 +292,9 @@ namespace SnakeGame
             }
             return false;
         }
-    }//class Snake
+    }
 
-    class FoodFactory
+    class Food
     {
         int x;
         int y;
@@ -265,7 +303,7 @@ namespace SnakeGame
 
         Random random = new Random();
 
-        public FoodFactory(int x, int y, char ch)
+        public Food(int x, int y, char ch)
         {
             this.x = x;
             this.y = y;
@@ -274,9 +312,8 @@ namespace SnakeGame
 
         public void CreateFood()
         {
-            food = (random.Next(2, x - 2), random.Next(2, y - 2), ch);
+            food = (random.Next(1, x - 1), random.Next(1, y - 1), ch);//спавн еды
             food.Draw();
         }
     }
 }
-
