@@ -3,6 +3,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace Змейка
 {
     class Game
@@ -13,7 +14,7 @@ namespace Змейка
         static Snake snake;
         static Food food;
         static Timer time;
-
+ 
         static void Main()
         {
             Console.CursorVisible = false; //скрывает курсор в консоли
@@ -31,6 +32,19 @@ namespace Змейка
 
             int Level = Convert.ToInt32(Console.ReadLine());
             Console.Clear();
+            if (Level == 1)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            if (Level == 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+            if (Level == 3)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+            }
+
 
             switch (Level)//сложность уровня
             {
@@ -49,7 +63,7 @@ namespace Змейка
                     y = 20;
                     snake_speed = 100;
                     break;
-
+ 
             }
             Console.SetWindowSize(x + 1, y + 1);
             Console.SetBufferSize(x + 1, y + 1);
@@ -315,5 +329,7 @@ namespace Змейка
             food = (random.Next(1, x - 1), random.Next(1, y - 1), ch);//спавн еды
             food.Draw();
         }
+
     }
+
 }
